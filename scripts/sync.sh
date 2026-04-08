@@ -12,7 +12,7 @@ set -euo pipefail
 SKILL_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 CACHE_DIR="${HOME}/.cache/motion-studio"
 
-API="${MOTION_STUDIO_API_URL:-https://motion-studio-web-production.up.railway.app}"
+API="${MOTION_STUDIO_API_URL:-https://motion-studio.up.railway.app}"
 KEY="${MOTION_STUDIO_API_KEY:-}"
 
 GREEN='\033[0;32m'; YELLOW='\033[0;33m'; RED='\033[0;31m'

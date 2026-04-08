@@ -134,7 +134,7 @@ Do not leak proprietary client details. Generalize corrections into reusable ani
 ## Setup
 
 ```bash
-export MOTION_STUDIO_API_URL="https://motion-studio-web-production.up.railway.app"
+export MOTION_STUDIO_API_URL="https://motion-studio.up.railway.app"
 export MOTION_STUDIO_API_KEY="your_key"
 ```
 

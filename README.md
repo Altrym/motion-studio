@@ -23,7 +23,7 @@ Keep the full skill together:
 
 ```bash
 # Connect to the community server
-export MOTION_STUDIO_API_URL="https://motion-studio-web-production.up.railway.app"
+export MOTION_STUDIO_API_URL="https://motion-studio.up.railway.app"
 export MOTION_STUDIO_API_KEY="your_key"
 
 # Auto-capture corrections after every session (optional, recommended)
