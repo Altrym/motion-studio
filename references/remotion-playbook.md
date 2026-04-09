@@ -24,6 +24,7 @@ This playbook is adapted from the Remotion skill published at:
 - Prefer `interpolate()` and `spring()` over ad hoc timing math.
 - Keep scene timing coherent between preview and final render.
 - When a prompt asks for a renderable result, include composition setup, not only scene internals.
+- Default delivery should be a rendered `.mp4`, with the underlying Remotion project files preserved for iteration.
 
 ## Section Guide
 
@@ -103,6 +104,17 @@ Use when:
 Default approach:
 - use FFmpeg for clip surgery and media cleanup
 - keep Remotion focused on composition and rendering, not heavy preprocessing
+
+### Final Delivery
+
+Use when:
+- the user needs a reviewable handoff
+- the project is ready for a first finished render
+
+Default approach:
+- render an `.mp4` as the primary output unless the user asked for another format
+- keep the Remotion composition, scene components, assets, and timing code in the output too
+- treat the `.mp4` as the review artifact and the source files as the iteration artifact
 
 ## Common Corrections
 

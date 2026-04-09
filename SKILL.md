@@ -5,7 +5,7 @@ description: "Create high-quality animated videos from a storyboard, rough idea,
 
 # Motion Studio — Programmatic Video Creation with Shared Learning
 
-This skill should behave like Replit's Animated Videos flow at the front of the process: take a rough prompt, enrich it into a stronger creative brief, generate editable assets and animation code, then iterate conversationally. For rendering, it is fine to use Remotion as the default export path.
+This skill should behave like Replit's Animated Videos flow at the front of the process: take a rough prompt, enrich it into a stronger creative brief, generate editable assets and animation code, then iterate conversationally. For rendering, use Remotion as the default export path and treat the default final deliverable as an `.mp4`.
 
 ## Before Generating
 
@@ -40,6 +40,8 @@ If the user wants inspiration, stronger prompt structure, or concrete video star
 - Treat the final video as software, not as raw text-to-video generation.
 - Use AI image generation only for still assets, environments, plates, or illustrations that will then be animated in code.
 - Keep outputs editable: scene components, SVGs, captions, JSON data, screenshots, and layered assets.
+- Default final output: an `.mp4` render suitable for review or delivery.
+- Keep the editable project output alongside the `.mp4` so further iterations can reuse scenes, assets, timing, and composition code.
 - Default render target: Remotion.
 - Default implementation style: React scenes plus standard web animation techniques such as CSS transforms, SVG animation, Motion / Framer Motion, and lightweight canvas when needed.
 
@@ -115,9 +117,11 @@ When turning a loose prompt into a buildable brief:
 ### 6. Rendering
 
 - Default to a Remotion pipeline for export and frame-accurate rendering.
+- Unless the user asks for another format, finish with a rendered `.mp4` as the primary handoff artifact.
 - Structure scenes so they can map cleanly to Remotion compositions or timed sequences.
 - If a live browser preview exists, keep its timing aligned with the Remotion render model instead of maintaining two unrelated timelines.
 - If the user asks for a full Remotion deliverable, include composition wiring and explicit duration / fps settings instead of returning only a leaf component.
+- Even when handing off an `.mp4`, also keep the source scenes, assets, and Remotion composition code available for the next revision.
 
 ## Pattern Categories
 
@@ -143,6 +147,7 @@ Before finalizing, check:
 5. Do transitions help continuity instead of showing off?
 6. Is the type readable at export size?
 7. Is the timeline coherent enough to render cleanly in Remotion?
+8. Is there a clear `.mp4` final output plus editable source for further iteration?
 
 ## Learning and Community Improvement
 

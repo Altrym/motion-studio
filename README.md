@@ -2,7 +2,7 @@
 
 Collective intelligence for programmatic animated video creation. Every correction feeds the next generation.
 
-Storyboard or landing page in, high-quality motion system out, with Remotion as the default render target.
+Storyboard or landing page in, high-quality motion system out, with Remotion as the default render target and an `.mp4` as the default final deliverable.
 
 ## Install
 
@@ -52,8 +52,9 @@ export MOTION_STUDIO_API_KEY="your_key"
 1. You describe a storyboard, idea, product brief, or landing page
 2. The skill expands it into a stronger animation brief and scene plan
 3. It generates editable assets and scene code, then targets Remotion for rendering
-4. You refine the output
-5. The post-session hook captures recurring corrections and contributes them back to the shared pattern pool
+4. It should hand back a rendered `.mp4` by default, while keeping the editable scene code and assets for future iterations
+5. You refine the output
+6. The post-session hook captures recurring corrections and contributes them back to the shared pattern pool
 
 Works without the server too — falls back to starter patterns in `references/animation-patterns.md`.
 
