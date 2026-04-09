@@ -11,6 +11,8 @@ set -euo pipefail
 
 SKILL_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 CACHE_DIR="${HOME}/.cache/motion-studio"
+UPDATE_CHECK_FILE="${CACHE_DIR}/.last-update-check"
+UPDATE_CHECK_INTERVAL_SECONDS=43200
 
 API="${MOTION_STUDIO_API_URL:-https://motion-studio.up.railway.app}"
 KEY="${MOTION_STUDIO_API_KEY:-}"
@@ -21,6 +23,116 @@ header() { echo -e "\n${BOLD}🎬 Motion Studio${RESET} — $1\n"; }
 
 auth_header() {
   if [ -n "$KEY" ]; then echo "-H" "Authorization: Bearer $KEY"; fi
+}
+
+local_skill_version() {
+  cat "$SKILL_DIR/VERSION" 2>/dev/null || echo "unknown"
+}
+
+fetch_remote_skill_info() {
+  curl -sf --max-time 5 "$API/api/skill-version" 2>/dev/null
+}
+
+remote_skill_version_from_json() {
+  python3 -c "import sys,json; print(json.load(sys.stdin).get('version',''))" 2>/dev/null
+}
+
+remote_skill_url_from_json() {
+  python3 -c "import sys,json; print(json.load(sys.stdin).get('download_url',''))" 2>/dev/null
+}
+
+check_for_skill_update() {
+  local force="${1:-0}"
+  mkdir -p "$CACHE_DIR"
+
+  local now
+  now=$(date +%s)
+
+  local last=0
+  if [ -f "$UPDATE_CHECK_FILE" ]; then
+    last=$(cat "$UPDATE_CHECK_FILE" 2>/dev/null || echo 0)
+  fi
+
+  if [ "$force" != "1" ] && [ $((now - last)) -lt "$UPDATE_CHECK_INTERVAL_SECONDS" ]; then
+    return 0
+  fi
+
+  echo "$now" > "$UPDATE_CHECK_FILE"
+
+  local info
+  info=$(fetch_remote_skill_info) || return 0
+
+  local remote_version
+  remote_version=$(echo "$info" | remote_skill_version_from_json)
+  [ -z "$remote_version" ] && return 0
+
+  local local_version
+  local_version=$(local_skill_version)
+
+  if [ "$remote_version" != "$local_version" ]; then
+    echo -e "${YELLOW}↻ Skill update available${RESET}"
+    echo -e "${DIM}  Local:  $local_version${RESET}"
+    echo -e "${DIM}  Remote: $remote_version${RESET}"
+    echo -e "${DIM}  Run 'bash scripts/sync.sh update' to install it${RESET}"
+  fi
+}
+
+cmd_update() {
+  header "Updating Motion Studio skill"
+
+  local info
+  info=$(fetch_remote_skill_info) || {
+    echo -e "${RED}✗ Could not reach the Motion Studio update server${RESET}"
+    return 1
+  }
+
+  local remote_version download_url local_version
+  remote_version=$(echo "$info" | remote_skill_version_from_json)
+  download_url=$(echo "$info" | remote_skill_url_from_json)
+  local_version=$(local_skill_version)
+
+  if [ -z "$download_url" ]; then
+    download_url="$API/download/motion-studio.tgz"
+  fi
+
+  if [ -n "$remote_version" ] && [ "$remote_version" = "$local_version" ]; then
+    echo -e "${GREEN}✓ Motion Studio is already up to date (${local_version})${RESET}"
+    return 0
+  fi
+
+  local tmp_dir archive_path unpack_dir
+  tmp_dir=$(mktemp -d)
+  archive_path="$tmp_dir/motion-studio.tgz"
+  unpack_dir="$tmp_dir/unpacked"
+  mkdir -p "$unpack_dir"
+
+  curl -fLsS --max-time 30 "$download_url" -o "$archive_path" || {
+    rm -rf "$tmp_dir"
+    echo -e "${RED}✗ Could not download the Motion Studio bundle${RESET}"
+    return 1
+  }
+
+  tar -xzf "$archive_path" -C "$unpack_dir" || {
+    rm -rf "$tmp_dir"
+    echo -e "${RED}✗ Could not unpack the Motion Studio bundle${RESET}"
+    return 1
+  }
+
+  if [ ! -d "$unpack_dir/motion-studio" ]; then
+    rm -rf "$tmp_dir"
+    echo -e "${RED}✗ Downloaded archive did not contain motion-studio/${RESET}"
+    return 1
+  fi
+
+  cp -R "$unpack_dir/motion-studio/." "$SKILL_DIR/"
+  chmod +x "$SKILL_DIR"/scripts/*.sh 2>/dev/null || true
+  rm -rf "$tmp_dir"
+
+  date +%s > "$UPDATE_CHECK_FILE" 2>/dev/null || true
+  echo -e "${GREEN}✓ Motion Studio updated${RESET}"
+  if [ -n "$remote_version" ]; then
+    echo -e "${DIM}  Version: $remote_version${RESET}"
+  fi
 }
 
 flush_cache() {
@@ -40,6 +152,7 @@ flush_cache() {
 
 cmd_pull() {
   header "Pulling community animation patterns"
+  check_for_skill_update
   flush_cache
 
   local response
@@ -70,6 +183,7 @@ for p in patterns:
 
 cmd_capture() {
   header "Capturing animation corrections from git diffs"
+  check_for_skill_update
 
   local git_root
   git_root=$(git rev-parse --show-toplevel 2>/dev/null) || {
@@ -135,6 +249,7 @@ print(json.dumps({'file': '$file', 'diff': d}))
 cmd_log() {
   local desc="$1"
   header "Logging correction"
+  check_for_skill_update
 
   if [ -z "$desc" ]; then
     echo -e "${RED}✗ Usage: bash scripts/sync.sh log \"what you fixed\"${RESET}"; return 1
@@ -159,6 +274,7 @@ cmd_log() {
 
 cmd_stats() {
   header "Community stats"
+  check_for_skill_update
 
   local response
   response=$(curl -sf --max-time 10 \
@@ -196,6 +312,7 @@ case "${1:-help}" in
   capture) cmd_capture ;;
   log)     cmd_log "${2:-}" ;;
   stats)   cmd_stats ;;
+  update)  cmd_update ;;
   *)
     echo -e "${BOLD}🎬 Motion Studio${RESET}"
     echo ""
@@ -203,6 +320,7 @@ case "${1:-help}" in
     echo "  capture   Classify git diffs & push to API"
     echo "  log       Log a fix: log \"open with the result before the explanation\""
     echo "  stats     Community stats"
+    echo "  update    Download and install the latest Motion Studio bundle"
     echo ""
     echo -e "${DIM}  Server: $API${RESET}"
     ;;

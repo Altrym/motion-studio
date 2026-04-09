@@ -15,6 +15,7 @@ Install the repo contents as `motion-studio` in your local skills directory:
 ```
 
 Keep the full skill together:
+- `VERSION`
 - `SKILL.md`
 - `references/`
 - `scripts/`
@@ -63,6 +64,7 @@ bash scripts/sync.sh pull      # Get latest community patterns
 bash scripts/sync.sh capture   # Classify current git diffs & push
 bash scripts/sync.sh log "description of what you fixed"
 bash scripts/sync.sh stats     # Community stats
+bash scripts/sync.sh update    # Install the latest Motion Studio bundle
 ```
 
 ## Categories
