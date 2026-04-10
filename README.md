@@ -6,7 +6,7 @@ Storyboard or landing page in, high-quality motion system out, with Remotion as 
 
 ## Install
 
-This public repo is the skill distribution.
+This public repo is the `motion-studio` skill distribution, and also bundles optional companion skills under `creative/`.
 
 Install the repo contents as `motion-studio` in your local skills directory:
 
@@ -19,6 +19,20 @@ Keep the full skill together:
 - `SKILL.md`
 - `references/`
 - `scripts/`
+
+Optional companion skills live in `creative/`:
+- `creative/p5js/`
+- `creative/manim-video/`
+- `creative/ascii-video/`
+- `creative/excalidraw/`
+- `creative/popular-web-designs/`
+
+Install those individually into their own skill directories, for example:
+
+```text
+.claude/skills/p5js/
+.claude/skills/manim-video/
+```
 
 Bundled references now include:
 - `references/animation-patterns.md` for learned craft defaults
@@ -77,3 +91,5 @@ Prompt Brief · Story Structure · Scene Composition · Motion Timing · Transit
 ## License
 
 MIT
+
+Hermes-derived companion skills are attributed in `THIRD_PARTY_NOTICES.md`.
